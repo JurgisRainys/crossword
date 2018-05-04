@@ -15,3 +15,9 @@ let isVowel (ch: char) = matchChar ch vowels
 let isConsonant (ch: char) = matchChar ch consonants
 let isAllowedBoardSymbol (ch: char) = matchChar ch boardSymbols
 let notAllowedBoardSymbol (ch: char) = not (isAllowedBoardSymbol ch)
+
+type OptFlatmapChain() =
+    member this.Bind(m, f) = Option.bind f m
+    member this.Return(x) = Some x
+
+let optFlatMapChain = new OptFlatmapChain()

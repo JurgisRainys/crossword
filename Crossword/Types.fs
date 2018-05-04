@@ -14,8 +14,24 @@ type Word = Letter list
 type Coordinate = { x: int; y: int }
 type Cell = { position: Coordinate; ``type``: SType}
 type PositionedWord = { startPos: Coordinate; isHorizonal: bool; length: int; occupant: Word option }
+
+let takeXCoord (r: Coordinate) = r.x
     
 type Board private (cells: Map<Coordinate, SType>, words: PositionedWord list) =
+    static let findWordsInSingleRow (cellRow: int * Cell list) (horizontalRow: bool) = 
+        let rowIdx, cells = cellRow
+
+        let rec loop cells parsedWords =
+            match cells with 
+            | head :: next :: _ when if horizontalRow then (next.position.x - head.position.x) else (next.position.y - head.position.y) = 1 -> 
+                let length, leftoverCells = wordLength y head.position.x cells
+                let positionedWord = { startPos = { y = y; x = head.position.x }; isHorizonal = true; length = length; occupant = None }
+                loop leftoverCells (positionedWord :: parsedWords)
+            | _ :: tail -> loop tail parsedWords
+            | [] -> parsedWords
+
+        loop cells []
+
     // returns word length and leftover cells
     static let wordLength (y: int) (xStart: int) (cells: Cell list): (int * Cell list) =
         let length =
@@ -41,19 +57,21 @@ type Board private (cells: Map<Coordinate, SType>, words: PositionedWord list) =
 
         loop cells []
 
-    static let findHorizontalWords (cells: (int * Cell list) list): PositionedWord list =(* List.empty*)
-        cells |> List.collect findWordsInRow
+    static let findHorizontalWords (cells: (int * Cell list) list): PositionedWord list = cells |> List.collect findWordsInRow
         
     static let findVerticalWords (cells: (int * Cell list) list): PositionedWord list = List.Empty
 
     static let findAllWords (cells: Cell list) = 
-        let x = findHorizontalWords (cells |> List.sortBy (fun c -> c.position.y) |> List.groupBy (fun c -> c.position.y)) 
-        let t = x
-                @ findVerticalWords (cells |> List.sortBy (fun c -> c.position.x) |> List.groupBy (fun c -> c.position.x))
+        let horizontalWords = findHorizontalWords (cells |> List.sortBy (fun c -> c.position.y) |> List.groupBy (fun c -> c.position.y))
+        let verticalWords = findVerticalWords (cells |> List.sortBy (fun c -> c.position.x) |> List.groupBy (fun c -> c.position.x))
+        let xxx = cells |> List.sortBy (fun c -> c.position.y) |> List.groupBy (fun c -> c.position.y)
+        let t = horizontalWords @ verticalWords
         t
 
     new (cells: Cell list) = 
         let cellsAsMap = cells |> List.map (fun cell -> cell.position, cell.``type``) |> Map.ofList
         let words = findAllWords cells
         new Board(cellsAsMap, words)
+
+type Game = { board: Board; words: Word list }
 
