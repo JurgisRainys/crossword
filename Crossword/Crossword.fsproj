@@ -60,7 +60,9 @@
     <Compile Include="Types.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Content Include="bin\data2.txt" />
     <Content Include="bin/debug/data.txt" />
+    <Content Include="bin\Debug\data2.txt" />
     <Compile Include="Data.fs" />
     <Compile Include="Analysis.fs" />
     <Compile Include="Program.fs" />

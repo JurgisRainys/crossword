@@ -60,7 +60,30 @@ type Board private (cells: Map<Coordinate, Cell>, wordPositions: WordPosition li
         let verticalWordPositions = searchWordsInOneDirection cellPositions false
         horizontalWordPositions @ verticalWordPositions
 
-    static member getCellsCoordinatesInPosition position =
+    let letterCanBePlacedInCell (letter: Letter, cell: Cell) =
+        let typesMatch = letter.``type`` = cell.``type`` 
+        let cellNotOccupied = cell.occupant.IsNone
+        let cellOccupantMatchesLetter = cell.occupant |> Option.map (fun charOccupyingCell -> letter.ch = charOccupyingCell) |> Option.defaultValue (false)
+        typesMatch && (cellNotOccupied || cellOccupantMatchesLetter)
+        
+    member private this.updateCells (word: Word) position =
+        position 
+        |> this.getCellsCoordinatesInPosition
+        |> List.zip (word |> List.ofSeq)
+        |> List.fold (fun cells (letter, pos) -> cells |> Map.add pos { ``type`` = letter.``type``; occupant = Some letter.ch }) (cells)
+        |> fun updatedCells -> new Board(updatedCells, wordPositions)
+
+    member this.wordFitsInPosition (word: Word) position : bool =
+        if word.Length <> position.length then false
+        else 
+            let positionCells = this.getCellsInPosition position
+
+            not (positionCells
+                |> List.zip word
+                |> List.map (letterCanBePlacedInCell)
+                |> List.contains false)
+
+    member this.getCellsCoordinatesInPosition position =
         let rec loop currentCoord left acc = 
             if left = 0 then acc |> List.rev
             else
@@ -70,17 +93,16 @@ type Board private (cells: Map<Coordinate, Cell>, wordPositions: WordPosition li
         
         loop position.startPos (position.length - 1) [ position.startPos ]
 
-    member this.getCellTypesInPosition position = 
-        position |> Board.getCellsCoordinatesInPosition |> List.map (fun coord -> cells.[coord].``type``)
+    member this.getCellsInPosition position: Cell list = 
+        position |> this.getCellsCoordinatesInPosition |> List.map (fun coord -> cells.[coord])
 
-    member this.updateCells (word: Word) position =
-        let xx =
-            position 
-            |> Board.getCellsCoordinatesInPosition
-            |> List.zip (word |> List.ofSeq)
-        xx
-        |> List.fold (fun cells (letter, pos) -> cells |> Map.add pos { ``type`` = letter.``type``; occupant = Some letter.ch }) (cells)
-        |> fun updatedCells -> new Board(updatedCells, wordPositions)
+    // jei sekmingai padeda zodi, grazina lenta, jei ne, negrazina nieko
+    member this.placeWord (word: Word) position : Board option =
+        let boardHasSuchPosition = wordPositions |> List.contains position 
+        let wordFits = this.wordFitsInPosition word position
+
+        if boardHasSuchPosition && wordFits then Some (this.updateCells word position)
+        else None
 
     member this.cells = cells
     member this.wordPositions = wordPositions
@@ -91,31 +113,17 @@ type Board private (cells: Map<Coordinate, Cell>, wordPositions: WordPosition li
         new Board(cellsAsMap, words)
 
 type Game private (board: Board, unusedWords: Word list, placedWords: Map<WordPosition, Word>) =
-    let wordFitsInPosition word position : bool =
-        let positionCellTypes = board.getCellTypesInPosition position
-        let wordLetterTypes = getWordLetterTypes word
-
-        not (positionCellTypes
-            |> List.zip wordLetterTypes
-            |> List.map (fun (letterType, boardCellType) -> letterType = boardCellType)
-            |> List.contains false)
-
     member this.placeWord word position : Game option =
-        let boardHasSuchPosition = board.wordPositions |> List.contains position 
         let gameHasSuchWord = unusedWords |> List.contains word
         let positionNotOccupied = not (placedWords.ContainsKey position)
-        let wordFitsPositionInLength = word.Length = position.length
 
-        if boardHasSuchPosition && gameHasSuchWord && wordFitsPositionInLength && positionNotOccupied then
-            if wordFitsInPosition word position then
-                Some (Game (board.updateCells word position,
-                            unusedWords |> List.filter (fun w -> w <> word), // jei yra keli vienodi zodziai tai neveiks
-                            placedWords |> Map.add position word
-                ))
-            else None
+        if gameHasSuchWord && positionNotOccupied then
+            board.placeWord word position
+            |> Option.map (fun updatedBoard ->
+                Game (updatedBoard, 
+                      unusedWords |> List.filter (fun w -> w <> word), 
+                      placedWords |> Map.add position word))
         else None
-
-    member this.placeFirstUnusedWord position = this.placeWord unusedWords.Head position
 
     member this.board = board
     member this.unusedWords = unusedWords

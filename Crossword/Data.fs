@@ -12,7 +12,7 @@ let getWords (lines: string list) =
 let parseWords (words: string list): Word list option =
     match words |> List.collect (List.ofSeq) |> List.tryFind notAllowedWordSymbol with
     | Some _ -> None
-    | None -> Some (words |> List.map (fun w -> w |> List.ofSeq |> List.map (Letter.create) |> List.choose id))  //priestai patikrinau kad nebutu illegal charu, tai cia galiu naudot choose
+    | None -> Some (words |> List.map (fun w -> w.ToUpperInvariant() |> List.ofSeq |> List.map (Letter.create) |> List.choose id))  //priestai patikrinau kad nebutu illegal charu, tai cia galiu naudot choose
 
 let getBoardLines (lines: string list) =
     match lines with
@@ -35,7 +35,7 @@ let parseCells (line: string) (yCoord: int) =
     |> Option.map (List.filter (fun x -> x.cell.``type`` <> Space))
 
 let parseBoardCells (lines: string list) =
-    let boardSize = lines.Length
+    let boardSize = (lines |> List.maxBy(fun x -> x.Length)).Length
     lines
     |> List.mapi (fun yCoord line -> 
         if (line.Length > boardSize) then None
@@ -55,3 +55,26 @@ let parseGameFrom filename =
             let! boardCells = boardLines |> parseBoardCells
             return Game (Board boardCells, parsedWords)
         }
+
+let getMaxAxisValue (coordinates: Coordinate list) (findMaxOfX: bool) : int =
+    coordinates 
+    |> List.map (fun { x = x; y = y } -> if findMaxOfX then x else y)
+    |> List.max
+
+let printResults (game: Game) =
+    let getMaxAxisValue = 
+        game.board.cells 
+        |> Map.toList 
+        |> List.map (fun (coord, _) -> coord)
+        |> getMaxAxisValue
+
+    let maxX = getMaxAxisValue true
+    let maxY = getMaxAxisValue false
+
+
+
+    printfn "xd"
+
+
+
+    

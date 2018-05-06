@@ -4,32 +4,45 @@ open Types
 
 //let checkIfWordFits word board position =
     
+let checkWhereWordFits (board: Board) (occupiedPositions: Map<WordPosition, Word>) (word: Word): WordPosition list =
+    board.wordPositions 
+    |> List.except (occupiedPositions 
+    |> Map.toList 
+    |> List.map (fun (k, _) -> k)) 
+    |> List.filter (board.wordFitsInPosition word)
 
-let checkWhereWordFits (board: Board) (occupiedPositions: Map<WordPosition, Word>) (word: Word): WordPosition list = List.empty
-    //board.wordPositions |> List.filter (occupiedPositions)
-    
+let rec findSolutions (game: Game): Game list option =
+    //printfn "%s" ("placedWords: " + game.placedWords.Count.ToString() + "; unusedWords: " + game.unusedWords.Length.ToString())
 
-let rec findSolutions (game: Game) =
-    let x = 
-        game.unusedWords.Head 
-        |> checkWhereWordFits game.board game.placedWords
-        |> List.map (game.placeFirstUnusedWord)
-            
-    let word = game.unusedWords.[26]
-    let pos = game.board.wordPositions.[53]
-    let xxx = game.placeWord word pos
+    //if game.unusedWords.Length = 0 then Some [ game ]
+    //else
+    //    let t =
+    //        game.unusedWords
     //        |> List.map (fun word -> word, checkWhereWordFits game.board game.placedWords word) 
+    //        |> List.sortBy(fun (word, possiblePositions) -> possiblePositions.Length)
     //        |> List.collect (fun (word, possiblePositions) -> 
-    //            possiblePositions |> List.map (fun pos -> game.placeFirstUnusedWord pos |> Option.map findSolutions))
-    //        |> List.choose id
-    //x
+    //            possiblePositions 
+    //            |> List.map (fun pos -> (game.placeWord word pos) |> Option.bind (fun (game2: Game) -> findSolutions game2))
+    //            |> List.choose id
+    //            |> List.collect id)
+                
+    //    if t.Length = 0 then 
+    //         Some t 
+    //    else printfn "LOL"; None
 
-    //let x = game.unusedWords 
-    //        |> List.map (fun word -> word, checkWhereWordFits game.board game.placedWords word) 
-    //        |> List.collect (fun (word, possiblePositions) -> 
-    //            possiblePositions |> List.map (fun pos -> game.placeWord word pos |> Option.map findSolutions))
-    //        |> List.choose id
-    //x
+    //"placedWords: " + game.placedWords.Count.ToString() + "; unusedWords: " + game.unusedWords.Length.ToString())
 
-    printfn "%A" game.board.wordPositions
+    if game.unusedWords.Length = 0 then Some [ game ]
+    else
+        let t =
+            game.unusedWords
+            |> List.map (fun word -> word, checkWhereWordFits game.board game.placedWords word) 
+            |> List.sortBy(fun (word, possiblePositions) -> possiblePositions.Length)
+            |> List.collect (fun (word, possiblePositions) -> 
+                possiblePositions 
+                |> List.map (fun pos -> (game.placeWord word pos) |> Option.bind (findSolutions))
+                |> List.choose id
+                |> List.collect id)
+                
+        if t.Length <> 0 then Some t else None
 
