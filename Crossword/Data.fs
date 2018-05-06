@@ -20,9 +20,9 @@ let getBoardLines (lines: string list) =
     | _ -> None
 
 let parseCell ch coord = 
-    if ch = 'x' || ch = 'X' then Some { position = coord; ``type`` = Consonant }
-    else if ch = 'o' || ch = 'O' then Some { position = coord; ``type`` = Vowel }
-    else if ch = ' ' then Some { position = coord; ``type`` = Space }   // jei bent viena celle grazina None, tai visa lenta none, todel reikia sito
+    if ch = 'x' || ch = 'X' then Some { position = coord; cell = { ``type`` = Consonant; occupant = None } }
+    else if ch = 'o' || ch = 'O' then Some { position = coord; cell = { ``type`` = Vowel;  occupant = None } }
+    else if ch = ' ' then Some { position = coord; cell = { ``type`` = Space;  occupant = None } }   // jei bent viena celle grazina None, tai visa lenta none, todel reikia sito
     else None
 
 let noneIfContainsNone (list: 'a option list) = if (list |> List.contains None) then None else Some (list |> List.choose id)
@@ -32,7 +32,7 @@ let parseCells (line: string) (yCoord: int) =
     |> List.ofSeq 
     |> List.mapi (fun xCoord ch -> parseCell ch { x = xCoord; y = yCoord }) 
     |> noneIfContainsNone 
-    |> Option.map (List.filter (fun x -> x.``type`` <> Space))
+    |> Option.map (List.filter (fun x -> x.cell.``type`` <> Space))
 
 let parseBoardCells (lines: string list) =
     let boardSize = lines.Length

@@ -13,8 +13,11 @@ let rec findSolutions (game: Game) =
     let x = 
         game.unusedWords.Head 
         |> checkWhereWordFits game.board game.placedWords
-        |> List.map (fun pos -> game.placeFirstUnusedWord pos)
+        |> List.map (game.placeFirstUnusedWord)
             
+    let word = game.unusedWords.[26]
+    let pos = game.board.wordPositions.[53]
+    let xxx = game.placeWord word pos
     //        |> List.map (fun word -> word, checkWhereWordFits game.board game.placedWords word) 
     //        |> List.collect (fun (word, possiblePositions) -> 
     //            possiblePositions |> List.map (fun pos -> game.placeFirstUnusedWord pos |> Option.map findSolutions))
