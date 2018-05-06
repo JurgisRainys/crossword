@@ -62,6 +62,7 @@
     <Content Include="packages.config" />
     <Content Include="bin/debug/data.txt" />
     <Compile Include="Data.fs" />
+    <Compile Include="Analysis.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -43,7 +43,7 @@ let parseBoardCells (lines: string list) =
     |> noneIfContainsNone
     |> Option.map (fun t -> t |> List.collect id)
 
-let readData filename =
+let parseGameFrom filename =
     if not (File.Exists(filename)) then None
     else
         let lines = File.ReadAllLines(filename) |> List.ofArray
@@ -53,17 +53,5 @@ let readData filename =
             let! parsedWords = words |> parseWords
             let! boardLines = lines |> getBoardLines
             let! boardCells = boardLines |> parseBoardCells
-            return { words = parsedWords; board = Board boardCells }
+            return Game (Board boardCells, parsedWords)
         }
-
-        // same
-
-        //match lines |> getWords |> Option.bind parseWords with 
-        //| None -> None
-        //| Some words ->
-        //    match lines |> getBoardLines |> Option.bind (parseBoard) with
-        //    | None -> None
-        //    | Some board -> Some { words = parsedWords; board = Board boardCells }
-
-    
-
