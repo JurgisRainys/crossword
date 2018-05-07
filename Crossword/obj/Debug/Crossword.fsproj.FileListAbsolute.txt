@@ -7,3 +7,14 @@ C:\Users\Jurgis\source\repos\Crossword\Crossword\bin\Debug\System.ValueTuple.dll
 C:\Users\Jurgis\source\repos\Crossword\Crossword\bin\Debug\FSharp.Core.xml
 C:\Users\Jurgis\source\repos\Crossword\Crossword\obj\Debug\Crossword.exe
 C:\Users\Jurgis\source\repos\Crossword\Crossword\obj\Debug\Crossword.pdb
+C:\kodas\crossword\Crossword\bin\Debug\Crossword.exe.config
+C:\kodas\crossword\Crossword\bin\Debug\Crossword.XML
+C:\kodas\crossword\Crossword\bin\Debug\Crossword.exe
+C:\kodas\crossword\Crossword\bin\Debug\Crossword.pdb
+C:\kodas\crossword\Crossword\bin\Debug\FSharp.Core.dll
+C:\kodas\crossword\Crossword\bin\Debug\System.ValueTuple.dll
+C:\kodas\crossword\Crossword\bin\Debug\FSharp.Core.xml
+C:\kodas\crossword\Crossword\obj\Debug\Crossword.fsprojResolveAssemblyReference.cache
+C:\kodas\crossword\Crossword\obj\Debug\Crossword.fsproj.CopyComplete
+C:\kodas\crossword\Crossword\obj\Debug\Crossword.exe
+C:\kodas\crossword\Crossword\obj\Debug\Crossword.pdb

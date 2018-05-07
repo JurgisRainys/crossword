@@ -1,4 +1,4 @@
-﻿akis alus sala saga gopas lopa
+﻿akis alus sala saga golas lopas
 
 OXOX
 X  O
@@ -7,3 +7,4 @@ XOXO
   O
   X
   O
+  X

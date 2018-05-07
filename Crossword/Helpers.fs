@@ -8,7 +8,7 @@ let consonants = addUpperCaseLetters "bcčdfghjklmnprsštvzž"
 let boardSymbols = (addUpperCaseLetters "xo") + " "
 let allAllowedWordSymbols = vowels + consonants
 
-let matchChar ch regex = Regex.Match(ch.ToString(), "[" + regex + "]").Success
+let matchChar ch (allowed: string) = allowed.Contains(ch.ToString())
 let isVowel (ch: char) = matchChar ch vowels
 let isConsonant (ch: char) = matchChar ch consonants
 let isSpace (ch: char) = ch = ' '
@@ -20,3 +20,22 @@ type OptFlatmapChain() =
     member this.Return(x) = Some x
 
 let optFlatMapChain = new OptFlatmapChain()
+
+[<AutoOpen>]
+module Either =
+    type Either<'a, 'b> =
+        | Left of 'a
+        | Right of 'b
+
+    let isLeft = function
+      | Left _ -> true
+      | _      -> false
+
+    let isRight = function
+      | Right _ -> true
+      | _      -> false
+
+    let noneIfLeft (either: Either<'a, 'b option>) = 
+        match either with
+        | Right cell -> cell
+        | _ -> None

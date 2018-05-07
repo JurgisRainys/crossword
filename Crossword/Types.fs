@@ -2,8 +2,8 @@
 
 open Helpers
 
-type SType = Vowel | Consonant | Space // space yra, kad kai parsina lenta, vietoj tarpu nepridetu kitu zenklu
-type Letter = private { ``type``: SType; ch: char } with
+type SType = Vowel | Consonant
+type Letter = private { ``type``: SType; ch: char} with
     static member create (ch: char) = 
         //(SType.get ch) |> Option.bind (fun ``type`` -> if ``type`` = Space then None else Some ``type``)
         if (isVowel ch) then Some { ``type`` = Vowel; ch = ch }
@@ -12,11 +12,10 @@ type Letter = private { ``type``: SType; ch: char } with
 
 type Word = Letter list
 
-let getWordLetterTypes word = //nes
-    word |> List.map (fun { ch = _; ``type`` = letterType } -> letterType)
+let getWordLetterTypes word = word |> List.map (fun { ch = _; ``type`` = letterType } -> letterType)
 
 type Coordinate = { x: int; y: int }
-type Cell = { ``type``: SType; occupant: char option}
+type Cell = {``type``: SType; occupant: char option}
 type PositionedCell = { position: Coordinate; cell: Cell }
 type WordPosition = { startPos: Coordinate; isHorizonal: bool; length: int }
 
@@ -113,6 +112,10 @@ type Board private (cells: Map<Coordinate, Cell>, wordPositions: WordPosition li
         new Board(cellsAsMap, words)
 
 type Game private (board: Board, unusedWords: Word list, placedWords: Map<WordPosition, Word>) =
+    let filterSingleWordFromUnused word = 
+        let notYetFiltered = true;
+        unusedWords |> List.fold (fun acc x -> if notYetFiltered && x = word then acc else x :: acc) []
+
     member this.placeWord word position : Game option =
         let gameHasSuchWord = unusedWords |> List.contains word
         let positionNotOccupied = not (placedWords.ContainsKey position)
@@ -121,7 +124,7 @@ type Game private (board: Board, unusedWords: Word list, placedWords: Map<WordPo
             board.placeWord word position
             |> Option.map (fun updatedBoard ->
                 Game (updatedBoard, 
-                      unusedWords |> List.filter (fun w -> w <> word), 
+                      filterSingleWordFromUnused word,
                       placedWords |> Map.add position word))
         else None
 
